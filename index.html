@@ -94,8 +94,9 @@
 
         /* 반짝임 효과 (좀 더 부드럽게 조정) */
         @keyframes sparkle {
-            0% { text-shadow: 0 0 3px yellow, 0 0 5px yellow, 0 0 10px yellow; }
-            100% { text-shadow: 0 0 3px white, 0 0 5px white, 0 0 10px white; }
+            0% { text-shadow: 0 0 3px pink, 0 0 5px pink, 0 0 10px pink; }
+            70% { text-shadow: 0 0 3px skyblue, 0 0 5px skyblue, 0 0 10px skyblue; }
+            100% { text-shadow: 0 0 3px greenyellow, 0 0 5px greenyellow, 0 0 10px greenyellow; }
         }
 
         #end-message {
@@ -194,7 +195,7 @@
 
                     // 결과 화면에 마니또 배정 결과 출력
                     document.getElementById("result").innerHTML = 
-                        `당신의 마니또는! 🎉 ${assignedManitos[myName]} 🎉`;
+                        `당신의 마니또는!<br>🎉${assignedManitos[myName]}🎉`;
                 })
                 .catch(err => {
                     console.error('Error fetching results:', err);  // 오류 발생 시 콘솔에 에러 출력
