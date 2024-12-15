@@ -1,0 +1,9 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: url('./25b.jpg') no-repeat center center fixed; /* 로컬 이미지 불러오기 */
+    background-size: cover; /* 이미지 화면에 꽉 채우기 */
+    text-align: center;
+    color: white;
+}
