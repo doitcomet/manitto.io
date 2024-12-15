@@ -165,6 +165,8 @@
 
     <!-- 눈 효과 -->
     <script>
+        let assignedManitos = {}; // 전역 변수로 선언
+
         function createSnowflake() {
             const snowflake = document.createElement("div");
             snowflake.classList.add("snowflake");
@@ -177,57 +179,27 @@
         }
         setInterval(createSnowflake, 100);
 
-        const participants = ["김혜림", "박서영", "조영신", "홍은하", "홍다예", "임지언", "김가영", "문재은"];
-        const assignedManitos = {};
-        let completedParticipants = new Set();
-
-        function assignManitos() {
-            const givers = [...participants];
-            const receivers = [...participants];
-
-            while (givers.length > 0) {
-                const giver = givers.pop();
-                const possibleReceivers = receivers.filter(r => r !== giver);
-
-                if (possibleReceivers.length === 0) {
-                    return assignManitos();
-                }
-
-                const randomIndex = Math.floor(Math.random() * possibleReceivers.length);
-                const receiver = possibleReceivers[randomIndex];
-
-                assignedManitos[giver] = receiver;
-                receivers.splice(receivers.indexOf(receiver), 1);
-            }
-
-            localStorage.setItem("assignedManitos", JSON.stringify(assignedManitos));
-        }
-
-        if (localStorage.getItem("assignedManitos")) {
-            Object.assign(assignedManitos, JSON.parse(localStorage.getItem("assignedManitos")));
-            completedParticipants = new Set(JSON.parse(localStorage.getItem("completedParticipants")));
-        } else {
-            assignManitos();
-        }
-
         function openGift() {
-            const myName = prompt("당신의 이름을 입력하세요:");
-            if (!participants.includes(myName)) {
-                alert("참가자 명단에 없는 이름입니다!");
-                return;
-            }
-            if (completedParticipants.has(myName)) {
-                alert("이미 결과를 확인했습니다!");
-                return;
-            }
-            document.getElementById("result").innerHTML = 
-                "당신의 마니또는! <br> 🎉 <span style='color: yellow; font-weight: bold; font-size: 1.5em;'>" + assignedManitos[myName] + "</span> 🎉";
-            completedParticipants.add(myName);
-            localStorage.setItem("completedParticipants", JSON.stringify([...completedParticipants]));
+            fetch('https://animated-fearless-kookaburra.glitch.me/api/manito-results')  // API URL 수정됨
+                .then(response => response.json())  // 응답을 JSON 형태로 파싱
+                .then(manitoResults => {
+                    assignedManitos = manitoResults; // 서버에서 받은 결과로 전역 변수 설정
+                    const myName = prompt("당신의 이름을 입력하세요:");
 
-            if (completedParticipants.size === participants.length) {
-                document.getElementById("end-message").textContent = "🎉 모든 마니또가 배정되었습니다! 🎉";
-            }
+                    // 입력한 이름이 참가자 목록에 있는지 확인
+                    if (!assignedManitos[myName]) {
+                        alert("참가자 명단에 없는 이름입니다!");
+                        return;
+                    }
+
+                    // 결과 화면에 마니또 배정 결과 출력
+                    document.getElementById("result").innerHTML = 
+                        `당신의 마니또는! 🎉 ${assignedManitos[myName]} 🎉`;
+                })
+                .catch(err => {
+                    console.error('Error fetching results:', err);  // 오류 발생 시 콘솔에 에러 출력
+                    alert("마니또 결과를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+                });
         }
 
         function revealResults() {
@@ -246,9 +218,20 @@
         function resetManito() {
             const confirmReset = confirm("🗑️ 모든 마니또를 초기화 하시겠습니까?");
             if (confirmReset) {
-                localStorage.clear();
-                alert("✅ 마니또가 초기화되었습니다!");
-                location.reload();
+                // 서버에서 새로운 마니또 배정 결과를 가져오기
+                fetch('https://animated-fearless-kookaburra.glitch.me/api/manito-results/reset', { method: 'POST' }) // API URL 수정됨
+                    .then(response => response.json())  // 응답을 JSON 형태로 파싱
+                    .then(manitoResults => {
+                        // 새로 배정된 마니또 결과를 로컬 스토리지에 저장
+                        localStorage.setItem("assignedManitos", JSON.stringify(manitoResults));
+                        localStorage.setItem("completedParticipants", JSON.stringify([])); // 확인한 참가자 목록 초기화
+                        alert("✅ 마니또가 초기화되었습니다!");
+                        location.reload();  // 페이지 새로 고침
+                    })
+                    .catch(err => {
+                        console.error('Error fetching new results:', err);  // 오류 발생 시 콘솔에 에러 출력
+                        alert("마니또 결과를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+                    });
             }
         }
     </script>
