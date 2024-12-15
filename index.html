@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 박무니들의 크리스마스 마니또 🎁</title>
+    <link rel="stylesheet" href="2025.css"> <!-- CSS 파일 연결 -->
     <style>
         /* 기본 설정 */
         body {
             margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            background-color: #AA8E7A; /* 기본 배경색 */
-            background: url('./25b.jpg') no-repeat center center fixed;
-            background-size: contain; /* 이미지 원본 비율 유지 */
+            background-color: #AA8E7A;
             text-align: center;
             color: white;
         }
@@ -21,6 +20,53 @@
             font-size: 2.5em;
             margin-top: 20px;
             text-shadow: 2px 2px 5px black;
+        }
+
+        /* 선물 상자 스타일 */
+        #gift-box {
+            width: 150px;
+            height: 150px;
+            margin: 50px auto;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em; /* 🎁 이모지 크기 */
+            color: white;
+            background: none;
+            border: 4px solid white; /* 흰색 테두리 */
+            box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8); /* 네온 효과 */
+            border-radius: 10px;
+            animation: neonGlow 2s infinite;
+        }
+
+        /* 네온 효과 애니메이션 */
+        @keyframes neonGlow {
+            0%, 100% {
+                box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 20px 5px rgba(255, 255, 255, 1);
+            }
+        }
+
+        /* 고정된 버튼 스타일 */
+        .fixed-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .fixed-button:hover {
+            transform: scale(1.1);
+        }
+
+        #trash-button {
+            bottom: 70px;
         }
 
         /* 눈 효과 */
@@ -37,60 +83,21 @@
             0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
-
-        /* 선물 상자 */
-        #gift-box {
-            width: 150px;
-            height: 150px;
-            background: red;
-            border: 5px solid gold;
-            position: relative;
-            margin: 100px auto;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            animation: glow 2s infinite;
-        }
-
-        #gift-box::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 30px;
-            background: gold;
-            border-radius: 5px 5px 0 0;
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 15px gold; }
-            50% { box-shadow: 0 0 30px gold; }
-        }
-
-        /* 결과 */
-        #result {
-            font-size: 1.8em;
-            color: yellow;
-            text-shadow: 2px 2px 5px black;
-            margin-top: 20px;
-            opacity: 0;
-            animation: fadeIn 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
     </style>
 </head>
 <body>
-    <h1>🎄제 N회 박무니들의 마니또 🎁</h1>
+    <h1>🎄 제 N회 박무니들의 마니또 🎁</h1>
     <p>선물 상자를 눌러 마니또를 확인하세요!</p>
-
+    
     <!-- 선물 상자 -->
-    <div id="gift-box" onclick="openGift()"></div>
+    <div id="gift-box" onclick="openGift()">🎁</div>
     <div id="result"></div>
+    <div id="end-message"></div>
+
+    <!-- 열쇠 버튼 -->
+    <div class="fixed-button" id="key-button" onclick="revealResults()">🔑</div>
+    <!-- 쓰레기통 버튼 -->
+    <div class="fixed-button" id="trash-button" onclick="resetManito()">🗑️</div>
 
     <!-- 눈 효과 -->
     <script>
@@ -99,30 +106,89 @@
             snowflake.classList.add("snowflake");
             snowflake.textContent = "❄";
             snowflake.style.left = Math.random() * window.innerWidth + "px";
-            snowflake.style.fontSize = Math.random() * 15 + 10 + "px";
+            snowflake.style.fontSize = Math.random() * 20 + 10 + "px";
             snowflake.style.animationDuration = Math.random() * 3 + 2 + "s";
             document.body.appendChild(snowflake);
             setTimeout(() => snowflake.remove(), 5000);
         }
-
         setInterval(createSnowflake, 100);
 
-        /* 마니또 기능 */
-        const participants = ["김혜림", "조영신", "홍은하", "홍다예", "임지언", "김가영", "문재은"];
-        let isOpened = false;
+        const participants = ["김혜림", "박서영", "조영신", "홍은하", "홍다예", "임지언", "김가영", "문재은"];
+        const assignedManitos = {};
+        let completedParticipants = new Set();
+
+        function assignManitos() {
+            const givers = [...participants];
+            const receivers = [...participants];
+
+            while (givers.length > 0) {
+                const giver = givers.pop();
+                const possibleReceivers = receivers.filter(r => r !== giver);
+
+                if (possibleReceivers.length === 0) {
+                    return assignManitos();
+                }
+
+                const randomIndex = Math.floor(Math.random() * possibleReceivers.length);
+                const receiver = possibleReceivers[randomIndex];
+
+                assignedManitos[giver] = receiver;
+                receivers.splice(receivers.indexOf(receiver), 1);
+            }
+
+            localStorage.setItem("assignedManitos", JSON.stringify(assignedManitos));
+        }
+
+        if (localStorage.getItem("assignedManitos")) {
+            Object.assign(assignedManitos, JSON.parse(localStorage.getItem("assignedManitos")));
+            completedParticipants = new Set(JSON.parse(localStorage.getItem("completedParticipants")));
+        } else {
+            assignManitos();
+        }
 
         function openGift() {
-            if (isOpened) return; // 이미 열렸으면 다시 실행 안 함
-            isOpened = true;
+    const myName = prompt("당신의 이름을 입력하세요:");
+    if (!participants.includes(myName)) {
+        alert("참가자 명단에 없는 이름입니다!");
+        return;
+    }
+    if (completedParticipants.has(myName)) {
+        alert("이미 결과를 확인했습니다!");
+        return;
+    }
+    document.getElementById("result").innerHTML = `
+        당신의 마니또는! <br>
+        🎉 <span style="color: yellow; font-weight: bold; font-size: 1.5em;">${assignedManitos[myName]}</span> 🎉
+    `;
+    completedParticipants.add(myName);
+    localStorage.setItem("completedParticipants", JSON.stringify([...completedParticipants]));
 
-            const giftBox = document.getElementById("gift-box");
-            giftBox.classList.add("explode");
+    if (completedParticipants.size === participants.length) {
+        document.getElementById("end-message").textContent = "🎉 모든 마니또가 배정되었습니다! 🎉";
+    }
+}
 
-            setTimeout(() => {
-                giftBox.style.display = "none";
-                const myManito = participants[Math.floor(Math.random() * participants.length)];
-                document.getElementById("result").textContent = `당신의 마니또는... 🎉 ${myManito}!`;
-            }, 500); // 터지는 애니메이션 후 실행
+        function revealResults() {
+            const key = prompt("🔑 비밀번호를 입력하세요:");
+            if (key === "1022") {
+                let resultMessage = "🔒 마니또 결과:\n";
+                for (const giver in assignedManitos) {
+                    resultMessage += `${giver} → ${assignedManitos[giver]}\n`;
+                }
+                alert(resultMessage);
+            } else {
+                alert("❌ 잘못된 비밀번호입니다!");
+            }
+        }
+
+        function resetManito() {
+            const confirmReset = confirm("🗑️ 모든 마니또를 초기화 하시겠습니까?");
+            if (confirmReset) {
+                localStorage.clear();
+                alert("✅ 마니또가 초기화되었습니다!");
+                location.reload();
+            }
         }
     </script>
-</body
+</body>
+</html>

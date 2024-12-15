@@ -2,8 +2,9 @@ body {
     margin: 0;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background: url('./25b.jpg') no-repeat center center fixed; /* 로컬 이미지 불러오기 */
-    background-size: cover; /* 이미지 화면에 꽉 채우기 */
+    background: url('25b.jpg') no-repeat center center fixed; /* 이미지 원본 유지 */
+    background-size: contain; /* 고정된 이미지 사이즈 */
+    background-color: #AA8E7A; /* 기본 배경색 */
     text-align: center;
     color: white;
 }
