@@ -14,19 +14,25 @@
             background-color: #AA8E7A;
             text-align: center;
             color: white;
+            font-size: 4vw; /* 화면 크기에 따라 폰트 크기 자동 조정 */
         }
 
+        /* 타이틀 스타일 */
         h1 {
-            font-size: 2.5em;
+            font-size: 5vw; /* 타이틀 폰트 사이즈 */
             margin-top: 20px;
             text-shadow: 2px 2px 5px black;
+        }
+
+        p {
+            font-size: 3vw; /* 소제목 크기 */
         }
 
         /* 선물 상자 스타일 */
         #gift-box {
             width: 150px;
             height: 150px;
-            margin: 50px auto;
+            margin: 20px auto;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -34,20 +40,8 @@
             font-size: 3em; /* 🎁 이모지 크기 */
             color: white;
             background: none;
-            border: 4px solid white; /* 흰색 테두리 */
-            box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8); /* 네온 효과 */
+            border: none; /* 흰색 테두리 제거 */
             border-radius: 10px;
-            animation: neonGlow 2s infinite;
-        }
-
-        /* 네온 효과 애니메이션 */
-        @keyframes neonGlow {
-            0%, 100% {
-                box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.8);
-            }
-            50% {
-                box-shadow: 0 0 20px 5px rgba(255, 255, 255, 1);
-            }
         }
 
         /* 고정된 버튼 스타일 */
@@ -55,7 +49,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            font-size: 1.5em;
+            font-size: 5vw; /* 버튼 크기 자동 조정 */
             cursor: pointer;
             user-select: none;
             transition: transform 0.2s;
@@ -83,12 +77,32 @@
             0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
+
+        /* 반응형 디자인 (화면이 작을 때 크기 조정) */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            p {
+                font-size: 4vw;
+            }
+
+            .fixed-button {
+                font-size: 6vw;
+            }
+
+            #gift-box {
+                font-size: 5em;
+                width: 120px;
+                height: 120px;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>🎄 제 N회 박무니들의 마니또 🎁</h1>
     <p>선물 상자를 눌러 마니또를 확인하세요!</p>
-    
     <!-- 선물 상자 -->
     <div id="gift-box" onclick="openGift()">🎁</div>
     <div id="result"></div>
@@ -147,33 +161,31 @@
         }
 
         function openGift() {
-    const myName = prompt("당신의 이름을 입력하세요:");
-    if (!participants.includes(myName)) {
-        alert("참가자 명단에 없는 이름입니다!");
-        return;
-    }
-    if (completedParticipants.has(myName)) {
-        alert("이미 결과를 확인했습니다!");
-        return;
-    }
-    document.getElementById("result").innerHTML = `
-        당신의 마니또는! <br>
-        🎉 <span style="color: yellow; font-weight: bold; font-size: 1.5em;">${assignedManitos[myName]}</span> 🎉
-    `;
-    completedParticipants.add(myName);
-    localStorage.setItem("completedParticipants", JSON.stringify([...completedParticipants]));
+            const myName = prompt("당신의 이름을 입력하세요:");
+            if (!participants.includes(myName)) {
+                alert("참가자 명단에 없는 이름입니다!");
+                return;
+            }
+            if (completedParticipants.has(myName)) {
+                alert("이미 결과를 확인했습니다!");
+                return;
+            }
+            document.getElementById("result").innerHTML = 
+                "당신의 마니또는! <br> 🎉 <span style='color: yellow; font-weight: bold; font-size: 1.5em;'>" + assignedManitos[myName] + "</span> 🎉";
+            completedParticipants.add(myName);
+            localStorage.setItem("completedParticipants", JSON.stringify([...completedParticipants]));
 
-    if (completedParticipants.size === participants.length) {
-        document.getElementById("end-message").textContent = "🎉 모든 마니또가 배정되었습니다! 🎉";
-    }
-}
+            if (completedParticipants.size === participants.length) {
+                document.getElementById("end-message").textContent = "🎉 모든 마니또가 배정되었습니다! 🎉";
+            }
+        }
 
         function revealResults() {
             const key = prompt("🔑 비밀번호를 입력하세요:");
             if (key === "1022") {
                 let resultMessage = "🔒 마니또 결과:\n";
                 for (const giver in assignedManitos) {
-                    resultMessage += `${giver} → ${assignedManitos[giver]}\n`;
+                    resultMessage += giver + " → " + assignedManitos[giver] + "\n";
                 }
                 alert(resultMessage);
             } else {
