@@ -110,6 +110,14 @@
             font-weight: bold;
         }
 
+        /* 다크 모드와 라이트 모드 지원 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #333;
+                color: #fff;
+            }
+        }
+
         /* 반응형 디자인 (화면이 작을 때 크기 조정) */
         @media screen and (max-width: 600px) {
             h1 {
